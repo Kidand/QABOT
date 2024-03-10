@@ -104,10 +104,12 @@
         function addMessage(message, sender) {
             const messageElem = document.createElement('div');
             messageElem.classList.add('message');
-            messageElem.innerHTML = `<span class="${sender}">${sender.toUpperCase()}:</span> ${message}`;
+            // 使用<span>标签包裹整个消息，确保整个文本都能应用相应的颜色
+            messageElem.innerHTML = `<span class="${sender}">${sender.toUpperCase()}:</span> <span class="${sender}">${message}</span>`;
             chat.appendChild(messageElem);
             chat.scrollTop = chat.scrollHeight;
         }
+
 
         async function sendMessage() {
             const message = userInput.value;
@@ -127,17 +129,18 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ input: message })
+                body: JSON.stringify({ message: message }) // 这里进行了调整
             });
 
             const data = await response.json();
-            const botMessage = data.response;
+            const botMessage = data.reply; // 这里进行了调整
 
             // 移除加载动画
             chat.removeChild(loader);
 
             displayMessageOneCharAtATime(botMessage, 'bot');
         }
+
 
         async function displayMessageOneCharAtATime(message, sender) {
             const messageElem = document.createElement('div');
