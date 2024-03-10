@@ -147,14 +147,25 @@
             messageElem.classList.add('message', sender);
             messageElem.innerHTML = `<span class="sender">${sender.toUpperCase()}:</span> `;
             chat.appendChild(messageElem);
-            chat.scrollTop = chat.scrollHeight;
 
-            for (let i = 0; i < message.length; i++) {
-                messageElem.innerHTML += message[i];
+            // 将消息按HTML实体和空格分割，但保留这些实体和空格
+            const parts = message.split(/(<br>|&nbsp;|\s)/).filter(part => part.length > 0);
+
+            for (let part of parts) {
+                // 如果part是HTML实体或空格，则直接插入；否则，逐字插入
+                if (part === '<br>' || part === '&nbsp;' || /\s/.test(part)) {
+                    messageElem.innerHTML += part;
+                } else {
+                    for (let char of part) {
+                        messageElem.innerHTML += char;
+                        await sleep(10); // 每100毫秒显示一个字符
+                    }
+                }
                 chat.scrollTop = chat.scrollHeight;
-                await sleep(100); // 每100毫秒显示一个字符，可以根据需要调整
             }
         }
+
+
 
         function sleep(ms) {
             return new Promise((resolve) => setTimeout(resolve, ms));

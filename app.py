@@ -3,6 +3,7 @@ from flask_session import Session  # 新增导入
 import openai
 from openai import OpenAI
 import os
+import re
 
 app = Flask(__name__)
 
@@ -41,12 +42,16 @@ def chat():
     # 解析响应，获取回复内容，并更新对话历史
     bot_reply = response.choices[0].message.content if response.choices else "Sorry, I couldn't process that."
     print(bot_reply)
+    # 将换行符转换为HTML的换行标签，并保留缩进
+    bot_reply_html = bot_reply.replace("\n", "<br>")
+    bot_reply_html = re.sub(r'(?<=<br>)(\s+)', lambda match: '&nbsp;' * len(match.group(1)), bot_reply_html)
+
     history.append({"role": "assistant", "content": bot_reply})
 
     # 保存更新后的历史到session
     session['history'] = history
 
-    return jsonify({"reply": bot_reply})
+    return jsonify({"reply": bot_reply_html})
 
 if __name__ == '__main__':
     app.run(debug=True)
